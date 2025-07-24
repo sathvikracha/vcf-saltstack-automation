@@ -1,0 +1,29 @@
+formatVersion: 1
+inputs:
+  hostname:
+    type: string
+    title: VM Hostname
+  image:
+    type: string
+    enum:
+      - ubuntu
+      - centos
+    default: ubuntu
+resources:
+  Cloud_Machine_1:
+    type: Cloud.Machine
+    properties:
+      name: '${input.hostname}'
+      image: '${input.image}'
+      flavor: small
+      networks:
+        - network: '${resource.Cloud_Network_1.id}'
+          assignment: static
+      cloudConfig: |
+        #cloud-config
+        runcmd:
+          - sudo apt update
+          - sudo apt install -y salt-minion
+          - echo "master: <salt-master-ip>" > /etc/salt/minion.d/master.conf
+          - systemctl enable salt-minion
+          - systemctl start salt-minion
